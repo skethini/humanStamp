@@ -1,0 +1,18 @@
+{
+  "name": "humanstamp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A browser extension that signals personal engagement with long-form writing",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "watch": "node scripts/build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "generate-keys": "node scripts/generate-keys.mjs",
+    "server": "node server/index.mjs"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.3"
+  }
+}
