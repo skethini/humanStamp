@@ -57,15 +57,19 @@
         color: #333;
         line-height: 1.4;
       }
+      .preview.preview-empty {
+        color: #888;
+        font-style: italic;
+      }
     </style>
   </head>
   <body>
     <h1>HumanStamp</h1>
-    <p>Set the name that appears on your signatures.</p>
+    <p>Required before you can add a signature.</p>
     <label for="displayName">Your name</label>
-    <input id="displayName" type="text" placeholder="e.g. Sumedha" autocomplete="name" />
+    <input id="displayName" type="text" placeholder="e.g. Sumedha" autocomplete="name" required />
     <div class="preview-label">Signature preview</div>
-    <div class="preview" id="preview">✍ HumanStamped by Your Name</div>
+    <div class="preview preview-empty" id="preview">Enter your name above to enable signing.</div>
     <div class="saved" id="status"></div>
     <script src="../dist/popup.js"></script>
   </body>
