@@ -1,7 +1,14 @@
 import { EditorAdapter } from "../../shared/types";
+import { isGmailHost, isOutlookHost } from "../../shared/sites";
 
 function isContentEditable(el: HTMLElement): boolean {
   return el.isContentEditable || el.getAttribute("contenteditable") === "true";
+}
+
+function isVisible(el: HTMLElement): boolean {
+  if (!el.isConnected) return false;
+  const rect = el.getBoundingClientRect();
+  return rect.width > 0 && rect.height > 0;
 }
 
 function getTextFromNode(node: HTMLElement): string {
@@ -40,79 +47,92 @@ function getSelectionOffsetsInElement(
   };
 }
 
-function createContentEditableAdapter(
-  id: string,
-  hostMatch: () => boolean,
-  editorSelector: string,
-  anchorSelector?: string
-): EditorAdapter {
-  return {
-    id,
-    matches: hostMatch,
-    findEditor() {
-      const el = document.querySelector<HTMLElement>(editorSelector);
-      if (!el || !isContentEditable(el)) return null;
-      return el;
-    },
-    getText: getTextFromNode,
-    setText: setTextInNode,
-    getSelectionOffsets: getSelectionOffsetsInElement,
-    getWidgetAnchor(editor: HTMLElement): HTMLElement {
-      if (anchorSelector) {
-        const anchor = editor.closest(anchorSelector);
-        if (anchor instanceof HTMLElement) return anchor;
-        if (editor.parentElement) return editor.parentElement;
-      }
-      return editor.parentElement ?? editor;
-    },
-  };
+function findActiveEditor(selectors: string[]): HTMLElement | null {
+  const candidates: HTMLElement[] = [];
+
+  for (const selector of selectors) {
+    for (const el of document.querySelectorAll<HTMLElement>(selector)) {
+      if (!isContentEditable(el) || !isVisible(el)) continue;
+      if (candidates.includes(el)) continue;
+      candidates.push(el);
+    }
+  }
+
+  if (candidates.length === 0) return null;
+
+  const focused = candidates.find((el) => el.contains(document.activeElement));
+  if (focused) return focused;
+
+  return candidates[candidates.length - 1];
 }
 
-export const gmailAdapter: EditorAdapter = createContentEditableAdapter(
-  "gmail",
-  () => location.hostname === "mail.google.com",
-  'div[aria-label="Message Body"], div[aria-label="Message body"], div.editable[contenteditable="true"]',
-  ".aoI"
-);
-
-export const outlookAdapter: EditorAdapter = createContentEditableAdapter(
-  "outlook",
-  () =>
-    location.hostname === "outlook.live.com" ||
-    location.hostname === "outlook.office.com" ||
-    location.hostname === "outlook.office365.com",
-  'div[aria-label="Message body"], div[role="textbox"][contenteditable="true"]',
-  '[role="main"]'
-);
-
-export const linkedinAdapter: EditorAdapter = createContentEditableAdapter(
-  "linkedin",
-  () => location.hostname === "www.linkedin.com",
-  '.ql-editor[contenteditable="true"], div[role="textbox"][contenteditable="true"]',
-  ".share-box, .share-creation-state"
-);
-
-export const mediumAdapter: EditorAdapter = createContentEditableAdapter(
-  "medium",
-  () => location.hostname === "medium.com",
-  'div[contenteditable="true"][data-testid], div[contenteditable="true"].graf--p, article div[contenteditable="true"]',
-  "article"
-);
-
-export const substackAdapter: EditorAdapter = createContentEditableAdapter(
-  "substack",
-  () => location.hostname.endsWith(".substack.com"),
-  '.ProseMirror[contenteditable="true"], div[contenteditable="true"].body',
-  ".editor-container, .post-editor"
-);
-
-export const adapters: EditorAdapter[] = [
-  gmailAdapter,
-  outlookAdapter,
-  linkedinAdapter,
-  mediumAdapter,
-  substackAdapter,
+const GMAIL_EDITOR_SELECTORS = [
+  'div[aria-label="Message Body"][contenteditable="true"]',
+  'div[aria-label="Message body"][contenteditable="true"]',
+  'div.editable[contenteditable="true"][role="textbox"]',
+  'div[contenteditable="true"][g_editable="true"]',
 ];
+
+const OUTLOOK_EDITOR_SELECTORS = [
+  'div[aria-label="Message body"][contenteditable="true"]',
+  'div[role="textbox"][aria-label="Message body"][contenteditable="true"]',
+  'div.elementToProof[contenteditable="true"]',
+  '[data-testid="rooster-editor"][contenteditable="true"]',
+];
+
+export const gmailAdapter: EditorAdapter = {
+  id: "gmail",
+  matches: isGmailHost,
+  findEditor() {
+    return findActiveEditor(GMAIL_EDITOR_SELECTORS);
+  },
+  getText: getTextFromNode,
+  setText: setTextInNode,
+  getSelectionOffsets: getSelectionOffsetsInElement,
+  getWidgetAnchor(editor: HTMLElement): HTMLElement {
+    const sendRow = editor.closest("table")?.querySelector(".aoI");
+    if (sendRow instanceof HTMLElement) return sendRow;
+
+    const anchor = editor.closest(".aoI, .aYF");
+    if (anchor instanceof HTMLElement) return anchor;
+
+    return editor.parentElement ?? editor;
+  },
+};
+
+export const outlookAdapter: EditorAdapter = {
+  id: "outlook",
+  matches: isOutlookHost,
+  findEditor() {
+    return findActiveEditor(OUTLOOK_EDITOR_SELECTORS);
+  },
+  getText: getTextFromNode,
+  setText: setTextInNode,
+  getSelectionOffsets: getSelectionOffsetsInElement,
+  getWidgetAnchor(editor: HTMLElement): HTMLElement {
+    const composeRoot =
+      editor.closest('[role="dialog"]') ??
+      editor.closest('[data-app-section="ComposeContainer"]') ??
+      editor.closest("#ReadingPaneContainerId") ??
+      editor.closest('[role="region"]');
+
+    if (composeRoot instanceof HTMLElement) {
+      const toolbar = composeRoot.querySelector(
+        '[role="toolbar"], [aria-label="Command toolbar"], div[class*="toolbar"]'
+      );
+      if (toolbar instanceof HTMLElement) return toolbar;
+
+      const send = composeRoot.querySelector('[aria-label="Send"]');
+      if (send?.parentElement instanceof HTMLElement) return send.parentElement;
+
+      return composeRoot;
+    }
+
+    return editor.parentElement ?? editor;
+  },
+};
+
+export const adapters: EditorAdapter[] = [gmailAdapter, outlookAdapter];
 
 export function findActiveAdapter(): EditorAdapter | null {
   for (const adapter of adapters) {

@@ -242,19 +242,17 @@ function collectBodyCandidates(anchor: HTMLElement): string[] {
 
 function findContainerCandidates(anchor: HTMLElement): HTMLElement[] {
   const selectors = [
-    '[role="textbox"]',
-    '[role="document"]',
-    '[role="article"]',
     '[aria-label="Message body"]',
     '[aria-label="Message Body"]',
+    '[role="textbox"]',
+    '[role="document"]',
+    "#ReadingPaneContainerId",
+    '[data-app-section="ReadingPane"]',
+    ".ReadingPaneContents",
+    ".allowTextSelection",
+    ".elementToProof",
     ".a3s",
     ".ii.gt",
-    ".allowTextSelection",
-    ".ReadingPaneContents",
-    '[data-app-section="ReadingPane"]',
-    ".ql-editor",
-    ".ProseMirror",
-    "article",
   ];
 
   const results: HTMLElement[] = [];

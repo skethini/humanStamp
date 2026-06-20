@@ -1,6 +1,7 @@
 import { findActiveAdapter } from "./adapters";
 import { EditorSession } from "./session";
 import { startVerificationScanner } from "./verifier";
+import { isSupportedMailHost } from "../shared/sites";
 
 let activeSession: EditorSession | null = null;
 let trackedEditor: HTMLElement | null = null;
@@ -35,6 +36,8 @@ function detach(): void {
 }
 
 function start(): void {
+  if (!isSupportedMailHost()) return;
+
   startVerificationScanner();
   attachIfNeeded();
 
