@@ -5,7 +5,7 @@ import {
   SIGNATURE_PREFIX,
 } from "../shared/constants";
 import { normalizeBodyForHash } from "../shared/normalize";
-import { resolveDisplayName } from "../shared/settings";
+import { getEffectiveDisplayName, resolveDisplayName } from "../shared/settings";
 import { SignedStamp } from "../shared/stamp";
 
 export function buildSignature(displayName: string): string | null {
@@ -60,10 +60,8 @@ export function appendSignedSignature(
   editor: HTMLElement,
   displayName: string,
   stampJson: string
-): boolean {
-  const name = resolveDisplayName(displayName);
-  if (!name) return false;
-
+): void {
+  const name = getEffectiveDisplayName(displayName);
   const doc = editor.ownerDocument;
 
   const spacer = doc.createElement("div");
@@ -92,7 +90,6 @@ export function appendSignedSignature(
   editor.appendChild(comment);
   editor.appendChild(backup);
   editor.dispatchEvent(new Event("input", { bubbles: true }));
-  return true;
 }
 
 export function removeSignatureFromEditor(editor: HTMLElement): void {

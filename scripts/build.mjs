@@ -38,6 +38,12 @@ const builds = [
     outfile: join(dist, "popup.js"),
     format: "iife",
   },
+  {
+    ...shared,
+    entryPoints: [join(root, "src/onboarding/welcome.ts")],
+    outfile: join(dist, "welcome.js"),
+    format: "iife",
+  },
 ];
 
 function writeAssets() {

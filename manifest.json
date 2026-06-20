@@ -3,7 +3,7 @@
   "name": "HumanStamp",
   "version": "0.2.0",
   "description": "Voluntarily sign content you personally typed a majority of.",
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "host_permissions": [
     "http://localhost:3847/*",
     "https://mail.google.com/*",

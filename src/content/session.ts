@@ -1,6 +1,5 @@
 import { DEFAULT_SETTINGS } from "../shared/constants";
 import { hashContent } from "../shared/crypto";
-import { hasDisplayName } from "../shared/settings";
 import { EditorAdapter } from "../shared/types";
 import { requestSignedStamp } from "./api";
 import { computeEligibility } from "./eligibility";
@@ -109,7 +108,7 @@ export class EditorSession {
       this.signaturePresent = false;
     }
 
-    this.widget?.update(state, this.signaturePresent, hasDisplayName(this.displayName));
+    this.widget?.update(state, this.signaturePresent);
   }
 
   private async addSignature(): Promise<void> {
@@ -120,27 +119,19 @@ export class EditorSession {
     if (!state.eligible) return;
 
     await this.refreshDisplayName();
-    if (!hasDisplayName(this.displayName)) {
-      this.widget?.update(state, false, false);
-      return;
-    }
 
     try {
       const contentHash = await hashContent(bodyText);
       const stamp = await requestSignedStamp(contentHash);
-      const added = appendSignedSignature(
+      appendSignedSignature(
         this.editor,
         this.displayName,
         JSON.stringify(stamp)
       );
-      if (!added) {
-        this.widget?.update(state, false, false);
-        return;
-      }
       this.signaturePresent = true;
-      this.widget?.update(state, true, true);
+      this.widget?.update(state, true);
     } catch {
-      this.widget?.update(state, false, hasDisplayName(this.displayName));
+      this.widget?.update(state, false);
     }
   }
 

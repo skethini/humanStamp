@@ -34,25 +34,11 @@ export class HumanStampWidget {
     parent.insertBefore(this.host, anchor.nextSibling);
   }
 
-  update(state: EligibilityState, hasSig: boolean, nameSet: boolean): void {
+  update(state: EligibilityState, hasSig: boolean): void {
     if (state.eligible) {
-      if (hasSig) {
-        this.statusEl.textContent = "✓ Signed";
-        this.statusEl.className = "humanstamp-status eligible";
-        this.actionBtn.hidden = true;
-        return;
-      }
-
-      if (!nameSet) {
-        this.statusEl.textContent = "Set your name (extension icon)";
-        this.statusEl.className = "humanstamp-status needs-name";
-        this.actionBtn.hidden = true;
-        return;
-      }
-
-      this.statusEl.textContent = "✓ Eligible";
+      this.statusEl.textContent = hasSig ? "✓ Signed" : "✓ Eligible";
       this.statusEl.className = "humanstamp-status eligible";
-      this.actionBtn.hidden = false;
+      this.actionBtn.hidden = hasSig;
       this.actionBtn.disabled = false;
     } else {
       this.statusEl.textContent = hasSig
@@ -101,10 +87,6 @@ const WIDGET_STYLES = `
   }
   .humanstamp-status.ineligible {
     color: #888;
-  }
-  .humanstamp-status.needs-name {
-    color: #b45309;
-    font-weight: 500;
   }
   .humanstamp-action {
     margin-left: 4px;
