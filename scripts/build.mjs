@@ -1,6 +1,6 @@
 import * as esbuild from "esbuild";
 import { deflateSync } from "node:zlib";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -53,7 +53,10 @@ function writeAssets() {
   );
 
   for (const size of [16, 48, 128]) {
-    writeFileSync(join(root, "icons", `icon${size}.png`), createPng(size));
+    const iconPath = join(root, "icons", `icon${size}.png`);
+    if (!existsSync(iconPath)) {
+      writeFileSync(iconPath, createPng(size));
+    }
   }
 }
 
