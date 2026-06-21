@@ -1,6 +1,6 @@
 # HumanStamp
 
-HumanStamp is a browser extension that lets people voluntarily sign long-form content they have meaningfully engaged with while writing.
+HumanStamp is a Chrome extension that lets you voluntarily sign email drafts you have meaningfully typed.
 
 It is a **social signal of personal effort**, not AI detection. A HumanStamp means:
 
@@ -8,17 +8,25 @@ It is a **social signal of personal effort**, not AI detection. A HumanStamp mea
 
 ## How it works
 
-1. Open a supported writing surface (Gmail compose, LinkedIn post, etc.).
+1. Open a compose or reply window in **Gmail** or **Outlook Web**.
 2. A small **HumanStamp** widget appears near the editor.
 3. As you type and edit, the extension tracks whether characters were **typed** or **pasted**.
 4. When more than 50% of the final body is typed, status becomes **Eligible**.
 5. Click **Add Signature** to append: `✍ HumanStamped by Your Name`
-6. If edits drop you below the threshold, the signature is removed automatically.
+6. If you edit the body after signing in a way that invalidates the stamp, the signature is removed.
 
 ## Supported sites
 
-- Gmail (web)
-- Outlook Web
+- **Gmail** — [mail.google.com](https://mail.google.com)
+- **Outlook Web** — outlook.com, outlook.live.com, and Microsoft 365 web mail
+
+HumanStamp only runs on these sites, in compose and reply editors.
+
+## Privacy
+
+HumanStamp does not upload your full email text. When you sign a draft, only a SHA-256 hash of the message body is sent to the signing service.
+
+Privacy policy: [https://human-stamp.vercel.app/privacy.html](https://human-stamp.vercel.app/privacy.html)
 
 ## Development
 
@@ -58,15 +66,17 @@ Click the HumanStamp toolbar icon and set the name shown on signatures.
 
 ```
 src/
-  background/     Service worker
+  background/     Service worker (signing proxy)
   content/        Editor detection, provenance tracking, widget, signatures
   popup/          User settings (display name)
-  shared/         Types and constants
+  shared/         Types, crypto, constants
+server/
+  api/            Vercel serverless signing endpoint
 ```
 
 - **Provenance tracker** — parallel character map (`typed` | `pasted`) updated on `beforeinput`
 - **Eligibility** — `human_ratio > 0.50` on final body text (signature excluded)
-- **Site adapters** — per-platform editor selectors and text extraction
+- **Site adapters** — Gmail and Outlook editor selectors and text extraction
 
 ## Philosophy
 
