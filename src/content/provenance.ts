@@ -50,17 +50,26 @@ export class ProvenanceTracker {
   }
 
   private originForInputType(inputType: string): CharacterOrigin {
-    switch (inputType) {
-      case "insertFromPaste":
-      case "insertFromDrop":
-      case "insertFromYank":
-        return "pasted";
-      default:
-        return "typed";
+    if (
+      inputType === "insertFromPaste" ||
+      inputType === "insertFromDrop" ||
+      inputType === "insertFromYank" ||
+      inputType.includes("Paste")
+    ) {
+      return "pasted";
     }
+    return "typed";
   }
 
   reset(): void {
     this.origins = [];
+  }
+
+  getOrigins(): CharacterOrigin[] {
+    return [...this.origins];
+  }
+
+  setOrigins(origins: CharacterOrigin[]): void {
+    this.origins = [...origins];
   }
 }

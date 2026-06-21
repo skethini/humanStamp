@@ -10,7 +10,9 @@
     "https://outlook.live.com/*",
     "https://outlook.office.com/*",
     "https://outlook.office365.com/*",
-    "https://outlook.cloud.microsoft.com/*"
+    "https://outlook.cloud.microsoft.com/*",
+    "https://outlook.cloud.microsoft/*",
+    "https://outlook.com/*"
   ],
   "background": {
     "service_worker": "dist/background.js",
@@ -23,7 +25,9 @@
         "https://outlook.live.com/*",
         "https://outlook.office.com/*",
         "https://outlook.office365.com/*",
-        "https://outlook.cloud.microsoft.com/*"
+        "https://outlook.cloud.microsoft.com/*",
+        "https://outlook.cloud.microsoft/*",
+        "https://outlook.com/*"
       ],
       "js": ["dist/content.js"],
       "css": ["dist/widget.css"],

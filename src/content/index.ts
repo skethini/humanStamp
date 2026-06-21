@@ -1,6 +1,7 @@
 import { findActiveAdapter } from "./adapters";
 import { EditorSession } from "./session";
 import { startVerificationScanner } from "./verifier";
+import { editorsEquivalent } from "./dom";
 import { isSupportedMailHost } from "../shared/sites";
 
 let activeSession: EditorSession | null = null;
@@ -8,6 +9,8 @@ let trackedEditor: HTMLElement | null = null;
 let observer: MutationObserver | null = null;
 
 function attachIfNeeded(): void {
+  if (activeSession?.isBusy()) return;
+
   const adapter = findActiveAdapter();
   if (!adapter) {
     detach();
@@ -20,7 +23,13 @@ function attachIfNeeded(): void {
     return;
   }
 
-  if (activeSession && trackedEditor === editor) return;
+  if (
+    activeSession &&
+    trackedEditor &&
+    editorsEquivalent(trackedEditor, editor)
+  ) {
+    return;
+  }
 
   detach();
   trackedEditor = editor;
@@ -28,6 +37,8 @@ function attachIfNeeded(): void {
 }
 
 function detach(): void {
+  if (activeSession?.isBusy()) return;
+
   if (activeSession) {
     activeSession.destroy();
     activeSession = null;
@@ -41,6 +52,8 @@ function start(): void {
   startVerificationScanner();
   attachIfNeeded();
 
+  document.addEventListener("focusin", attachIfNeeded, true);
+
   if (observer) return;
 
   observer = new MutationObserver(() => {
@@ -51,6 +64,8 @@ function start(): void {
     childList: true,
     subtree: true,
   });
+
+  window.setInterval(attachIfNeeded, 2000);
 }
 
 if (document.readyState === "loading") {

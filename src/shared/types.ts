@@ -12,6 +12,9 @@ export interface UserSettings {
 
 export interface EditorAdapter {
   readonly id: string;
+  readonly usesFloatingWidget: boolean;
+  /** Outlook often skips beforeinput; sync provenance from input as a fallback. */
+  readonly needsInputProvenanceFallback: boolean;
   matches(): boolean;
   findEditor(): HTMLElement | null;
   getText(editor: HTMLElement): string;

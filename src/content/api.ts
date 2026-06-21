@@ -1,23 +1,24 @@
-import { HUMANSTAMP_API_URL } from "../shared/constants";
+import {
+  SIGN_STAMP_MESSAGE,
+  SignStampResponse,
+} from "../shared/messages";
 import { SignedStamp } from "../shared/stamp";
 
 export async function requestSignedStamp(
   contentHash: string
 ): Promise<SignedStamp> {
-  const response = await fetch(HUMANSTAMP_API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contentHash,
-      eligible: true,
-      timestamp: new Date().toISOString(),
-      version: "2",
-    }),
-  });
+  const response = (await chrome.runtime.sendMessage({
+    type: SIGN_STAMP_MESSAGE,
+    contentHash,
+  })) as SignStampResponse | undefined;
 
-  if (!response.ok) {
-    throw new Error(`Signing failed (${response.status})`);
+  if (chrome.runtime.lastError) {
+    throw new Error(chrome.runtime.lastError.message);
   }
 
-  return response.json() as Promise<SignedStamp>;
+  if (!response?.ok) {
+    throw new Error(response?.error ?? "Could not reach the signing service");
+  }
+
+  return response.stamp;
 }
