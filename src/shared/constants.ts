@@ -12,4 +12,5 @@ export const HUMANSTAMP_METADATA_ATTR = "data-humanstamp";
 export const HUMANSTAMP_PAYLOAD_ATTR = "data-humanstamp-payload";
 export const HUMANSTAMP_BLOCK_CLASS = "humanstamp-block";
 export const HUMANSTAMP_COMMENT_PREFIX = "HumanStamp:";
-export const HUMANSTAMP_API_URL = "http://localhost:3847/api/v1/sign";
+export const HUMANSTAMP_API_URL =
+  "https://human-stamp.vercel.app/api/v1/sign";

@@ -15,13 +15,10 @@ It is a **social signal of personal effort**, not AI detection. A HumanStamp mea
 5. Click **Add Signature** to append: `✍ HumanStamped by Your Name`
 6. If edits drop you below the threshold, the signature is removed automatically.
 
-## Supported sites (MVP)
+## Supported sites
 
-- Gmail
+- Gmail (web)
 - Outlook Web
-- LinkedIn Post Composer
-- Medium
-- Substack
 
 ## Development
 
@@ -35,6 +32,8 @@ It is a **social signal of personal effort**, not AI detection. A HumanStamp mea
 npm install
 npm run build
 ```
+
+Signing is handled by the hosted service at `https://human-stamp.vercel.app/api/v1/sign`. See [server/README.md](server/README.md) for deployment and local server setup.
 
 ### Load in Chrome
 

@@ -8,7 +8,7 @@
     "watch": "node scripts/build.mjs --watch",
     "typecheck": "tsc --noEmit",
     "generate-keys": "node scripts/generate-keys.mjs",
-    "server": "node server/index.mjs"
+    "server": "node server/dev-server.mjs"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.268",

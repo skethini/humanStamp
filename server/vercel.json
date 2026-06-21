@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/v1/sign.js": {
+      "maxDuration": 10
+    }
+  }
+}

@@ -467,7 +467,7 @@ export class EditorSession {
         message.includes("Receiving end does not exist");
       this.widget?.showError(
         isConnectionError
-          ? "Start the signing server (npm run server)"
+          ? "Could not reach the HumanStamp signing service"
           : message
       );
       this.scheduleReconcile();

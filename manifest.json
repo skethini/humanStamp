@@ -5,7 +5,7 @@
   "description": "Voluntarily sign content you personally typed a majority of in Gmail and Outlook.",
   "permissions": ["storage", "tabs"],
   "host_permissions": [
-    "http://localhost:3847/*",
+    "https://human-stamp.vercel.app/*",
     "https://mail.google.com/*",
     "https://outlook.live.com/*",
     "https://outlook.office.com/*",

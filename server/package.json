@@ -1,0 +1,5 @@
+{
+  "name": "humanstamp-signing-service",
+  "private": true,
+  "type": "module"
+}
