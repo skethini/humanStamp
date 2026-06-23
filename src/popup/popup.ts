@@ -27,7 +27,7 @@ input.addEventListener("input", () => {
   saveTimer = window.setTimeout(() => {
     const displayName = input.value.trim();
     chrome.storage.sync.set({ displayName }, () => {
-      statusEl.textContent = hasDisplayName(displayName) ? "Saved" : "Saved (using default)";
+      statusEl.textContent = hasDisplayName(displayName) ? "Saved" : "Saved (default signature)";
       window.setTimeout(() => {
         statusEl.textContent = "";
       }, 1500);

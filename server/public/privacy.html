@@ -15,6 +15,7 @@
       }
       h1 { font-size: 1.75rem; margin-bottom: 0.25rem; }
       h2 { font-size: 1.15rem; margin-top: 2rem; }
+      h3 { font-size: 1rem; margin-top: 1.5rem; }
       p, li { font-size: 0.95rem; }
       .meta { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; }
       table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 1rem 0; }
@@ -39,6 +40,7 @@
       <li>Your <strong>full email text is not uploaded</strong> to our servers.</li>
       <li>When you sign a draft, only a <strong>SHA-256 hash</strong> of the message body is sent to our signing service.</li>
       <li>Typing/paste tracking and draft metadata are stored <strong>locally in your browser</strong>.</li>
+      <li>HumanStamp requests <strong>only the <code>storage</code> permission</strong> plus host access to supported mail sites and our signing API. It does <strong>not</strong> request the <code>tabs</code> permission.</li>
     </ul>
 
     <h2>Information the extension accesses</h2>
@@ -46,7 +48,7 @@
     <ul>
       <li><strong>Message body text</strong> — to track typed vs pasted characters, determine eligibility, and insert or verify signatures.</li>
       <li><strong>Compose metadata</strong> — such as subject and recipient fields, used only to identify drafts locally.</li>
-      <li><strong>Display name</strong> — the name you set in the extension popup, shown in signatures.</li>
+      <li><strong>Display name (optional)</strong> — if you set one in the extension popup, signatures appear as <code>✍ HumanStamped by Your Name</code>. If left blank, signatures use <code>✍ HumanStamped</code> only.</li>
     </ul>
     <p>
       HumanStamp does <strong>not</strong> read your inbox, sent mail, contacts, or email
@@ -61,7 +63,7 @@
       <tbody>
         <tr>
           <td><code>chrome.storage.sync</code></td>
-          <td>Display name</td>
+          <td>Optional display name</td>
           <td>Sync your signature name across Chrome profiles where sync is enabled</td>
         </tr>
         <tr>
@@ -75,6 +77,11 @@
       Local draft data is kept for up to <strong>64 recent drafts</strong> and is removed
       when you uninstall the extension or clear extension data.
     </p>
+    <p>
+      Display name and draft provenance are read and written by the background service worker.
+      Content scripts on mail pages request your display name through extension messages rather
+      than accessing storage directly.
+    </p>
 
     <h2>Information sent to our servers</h2>
     <p>
@@ -87,7 +94,7 @@
     </ul>
     <p>
       It does <strong>not</strong> include your full email text, recipient addresses,
-      subject lines, account identifiers, or passwords.
+      subject lines, account identifiers, passwords, or display name.
     </p>
 
     <h2>Information we do not collect</h2>
@@ -95,6 +102,7 @@
       <li>We do not sell personal data.</li>
       <li>We do not use advertising or analytics trackers.</li>
       <li>We do not collect browsing history outside supported mail compose pages.</li>
+      <li>We do not request permission to read or manage browser tabs.</li>
     </ul>
 
     <h2>Permissions</h2>
@@ -103,11 +111,25 @@
         <tr><th>Permission</th><th>Why it is used</th></tr>
       </thead>
       <tbody>
-        <tr><td><code>storage</code></td><td>Save your display name and local draft provenance</td></tr>
-        <tr><td>Gmail / Outlook host access</td><td>Show the widget in compose editors only</td></tr>
-        <tr><td><code>human-stamp.vercel.app</code></td><td>Request cryptographic signatures</td></tr>
+        <tr><td><code>storage</code></td><td>Save your optional display name and local draft provenance</td></tr>
+        <tr><td>Gmail / Outlook host access</td><td>Inject a content script and show the widget in compose editors only</td></tr>
+        <tr><td><code>human-stamp.vercel.app</code></td><td>Request cryptographic signatures from the signing service</td></tr>
       </tbody>
     </table>
+
+    <h3>Permissions HumanStamp does not use</h3>
+    <table>
+      <thead>
+        <tr><th>Permission</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>tabs</code></td>
+          <td><strong>Not requested.</strong> HumanStamp does not read, query, or monitor your open tabs. On first install, the extension may open a one-time welcome page using <code>chrome.tabs.create()</code>, which Chrome allows without the <code>tabs</code> permission.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>No other broad permissions (such as <code>activeTab</code>, <code>scripting</code>, or <code>cookies</code>) are requested.</p>
 
     <h2>Data retention and deletion</h2>
     <p>

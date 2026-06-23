@@ -93,6 +93,16 @@
         opacity: 0.5;
         cursor: not-allowed;
       }
+      button.secondary {
+        margin-top: 10px;
+        background: transparent;
+        color: #666;
+        font-weight: 500;
+        border: 1px solid #ccc;
+      }
+      button.secondary:hover {
+        background: #f5f5f5;
+      }
       .hint {
         margin-top: 16px;
         font-size: 12px;
@@ -106,26 +116,24 @@
     <div class="card">
       <h1>Welcome to HumanStamp</h1>
       <p>
-        HumanStamp lets you sign content you personally typed. What name should
-        appear on your signatures?
+        HumanStamp lets you sign content you personally typed. You can optionally add
+        your name to signatures, or leave it blank to use <strong>✍ HumanStamped</strong>.
       </p>
       <form id="form">
-        <label for="displayName">Your name</label>
+        <label for="displayName">Your name (optional)</label>
         <input
           id="displayName"
           type="text"
           placeholder="e.g. Sumedha"
           autocomplete="name"
           autofocus
-          required
         />
         <div class="preview-label">Signature preview</div>
-        <div class="preview preview-empty" id="preview">
-          Enter your name to see a preview.
-        </div>
-        <button type="submit" id="continue" disabled>Continue</button>
+        <div class="preview preview-empty" id="preview">✍ HumanStamped</div>
+        <button type="submit" id="continue">Continue</button>
+        <button type="button" id="skip" class="secondary">Skip for now</button>
       </form>
-      <p class="hint">You can change this anytime from the HumanStamp extension icon.</p>
+      <p class="hint">You can change your name anytime from the HumanStamp extension icon.</p>
     </div>
     <script src="../dist/welcome.js"></script>
   </body>

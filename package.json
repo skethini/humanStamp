@@ -2,7 +2,7 @@
   "name": "humanstamp",
   "version": "0.1.0",
   "private": true,
-  "description": "A browser extension that signals personal engagement with long-form writing",
+  "description": "Voluntarily sign Gmail and Outlook drafts you mostly typed yourself.",
   "scripts": {
     "build": "node scripts/build.mjs",
     "watch": "node scripts/build.mjs --watch",

@@ -10,6 +10,7 @@ HumanStamp (“we”, “the extension”) is a Chrome browser extension that he
 - Your **full email text is not uploaded** to our servers.
 - When you sign a draft, only a **SHA-256 hash** of the message body is sent to our signing service.
 - Typing/paste tracking and draft metadata are stored **locally in your browser**.
+- HumanStamp requests **only the `storage` permission** plus host access to supported mail sites and our signing API. It does **not** request the `tabs` permission.
 
 ## Information the extension accesses
 
@@ -17,7 +18,7 @@ While you use a supported compose editor, HumanStamp reads:
 
 - **Message body text** — to track whether characters were typed or pasted, determine eligibility, and insert or verify signatures.
 - **Compose metadata** — such as subject and recipient fields, used only to identify drafts locally so eligibility state can be restored when you return to a draft.
-- **Display name** — the name you choose in the extension popup, shown in signatures (e.g. `✍ HumanStamped by Your Name`).
+- **Display name (optional)** — if you set one in the extension popup, it appears in signatures as `✍ HumanStamped by Your Name`. If you leave it blank, signatures use `✍ HumanStamped` only.
 
 HumanStamp does **not** read your inbox, sent mail, contacts, or email content outside active compose/reply editors.
 
@@ -27,10 +28,12 @@ The extension uses Chrome’s built-in storage:
 
 | Storage | What is stored | Purpose |
 |---------|----------------|---------|
-| `chrome.storage.sync` | Display name | Sync your chosen signature name across Chrome profiles where sync is enabled |
+| `chrome.storage.sync` | Optional display name | Sync your chosen signature name across Chrome profiles where sync is enabled |
 | `chrome.storage.local` | Typed/paste maps for recent drafts, compose session IDs | Restore eligibility when switching drafts, refreshing, or returning later |
 
 Local draft data is kept for up to **64 recent drafts** and is removed when you uninstall the extension or clear extension data.
+
+Display name and draft provenance are read and written by the **background service worker**. Content scripts on mail pages request your display name through extension messages rather than accessing storage directly.
 
 ## Information sent to our servers
 
@@ -48,6 +51,7 @@ It does **not** include:
 - Your full email text
 - Recipient addresses, subject lines, or account identifiers
 - Email passwords or OAuth tokens
+- Your display name
 
 The server returns a cryptographic signature embedded in your draft. We do not use signing requests to build user profiles or for advertising.
 
@@ -59,14 +63,25 @@ HumanStamp does **not**:
 - Use advertising or analytics trackers
 - Collect browsing history outside supported mail compose pages
 - Access Gmail or Outlook account credentials
+- Request permission to read or manage browser tabs
 
 ## Permissions
 
+HumanStamp declares these permissions in its manifest:
+
 | Permission | Why it is used |
 |------------|----------------|
-| `storage` | Save your display name and local draft provenance |
-| Host access to Gmail / Outlook | Show the widget and track compose editors only |
-| Host access to `human-stamp.vercel.app` | Request signatures from the signing service |
+| `storage` | Save your optional display name and local draft provenance |
+| Host access to Gmail / Outlook | Inject a content script and show the widget in compose editors only |
+| Host access to `human-stamp.vercel.app` | Request cryptographic signatures from the signing service |
+
+### Permissions HumanStamp does not use
+
+| Permission | Notes |
+|------------|-------|
+| `tabs` | **Not requested.** HumanStamp does not read, query, or monitor your open tabs. On first install, the extension may open a one-time welcome page using `chrome.tabs.create()`, which Chrome allows without the `tabs` permission. |
+
+No other broad permissions (such as `activeTab`, `scripting`, or `cookies`) are requested.
 
 ## Data retention and deletion
 
