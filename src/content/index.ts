@@ -3,12 +3,14 @@ import { EditorSession } from "./session";
 import { startVerificationScanner } from "./verifier";
 import { editorsEquivalent } from "./dom";
 import { isSupportedMailHost } from "../shared/sites";
+import { canUseExtensionApis } from "../shared/extension-api";
 
 let activeSession: EditorSession | null = null;
 let trackedEditor: HTMLElement | null = null;
 let observer: MutationObserver | null = null;
 
 function attachIfNeeded(): void {
+  if (!canUseExtensionApis()) return;
   if (activeSession?.isBusy()) return;
 
   const adapter = findActiveAdapter();
@@ -48,6 +50,7 @@ function detach(): void {
 
 function start(): void {
   if (!isSupportedMailHost()) return;
+  if (!canUseExtensionApis()) return;
 
   startVerificationScanner();
   attachIfNeeded();

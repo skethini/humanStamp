@@ -1,7 +1,7 @@
 import { DEFAULT_SETTINGS } from "../shared/constants";
 import { hashContent } from "../shared/crypto";
 import { EditorAdapter, CharacterOrigin, EligibilityState } from "../shared/types";
-import { requestSignedStamp } from "./api";
+import { requestSignedStamp, fetchDisplayName } from "./api";
 import { resolveDraftIdentity } from "./draft-identity";
 import {
   draftStorageKey,
@@ -25,6 +25,7 @@ import {
   verifyEditorSignature,
 } from "./signature";
 import { HumanStampWidget } from "./widget";
+import { canUseExtensionApis } from "../shared/extension-api";
 
 const IDENTITY_RETRY_DELAYS_MS = [300, 800, 2000];
 
@@ -54,10 +55,6 @@ export class EditorSession {
   private beforeInputHandled = false;
   private pendingFullPaste = false;
   private mutationObserver: MutationObserver | null = null;
-  private boundStorageChange: (
-    changes: Record<string, chrome.storage.StorageChange>,
-    area: string
-  ) => void;
 
   constructor(adapter: EditorAdapter, editor: HTMLElement) {
     this.adapter = adapter;
@@ -65,14 +62,7 @@ export class EditorSession {
     this.boundBeforeInput = (e) => this.onBeforeInput(e as InputEvent);
     this.boundInput = (e) => this.onInput(e);
     this.boundPaste = () => this.onPaste();
-    this.boundStorageChange = (changes, area) => {
-      if (area !== "sync" || !changes.displayName) return;
-      this.displayName =
-        typeof changes.displayName.newValue === "string"
-          ? changes.displayName.newValue
-          : "";
-      this.scheduleReconcile();
-    };
+    if (!canUseExtensionApis()) return;
     this.init();
   }
 
@@ -82,8 +72,6 @@ export class EditorSession {
 
   private async init(): Promise<void> {
     await this.refreshDisplayName();
-
-    chrome.storage.onChanged.addListener(this.boundStorageChange);
 
     this.editor.addEventListener("beforeinput", this.boundBeforeInput);
     this.editor.addEventListener("input", this.boundInput);
@@ -116,7 +104,9 @@ export class EditorSession {
 
     await this.bootstrapDraft();
     this.scheduleIdentityRetry();
-    this.pollTimer = window.setInterval(() => this.scheduleReconcile(), 1500);
+    this.pollTimer = window.setInterval(() => {
+      void this.refreshDisplayName().then(() => this.scheduleReconcile());
+    }, 1500);
     this.scheduleReconcile();
   }
 
@@ -213,8 +203,10 @@ export class EditorSession {
   }
 
   private async refreshDisplayName(): Promise<void> {
-    const settings = await chrome.storage.sync.get(DEFAULT_SETTINGS);
-    this.displayName = settings.displayName || "";
+    const displayName = await fetchDisplayName();
+    if (displayName !== null) {
+      this.displayName = displayName;
+    }
   }
 
   private scheduleReconcile(): void {
@@ -502,7 +494,6 @@ export class EditorSession {
       window.clearTimeout(this.mutationDebounceTimer);
     }
 
-    chrome.storage.onChanged.removeListener(this.boundStorageChange);
     this.editor.removeEventListener("beforeinput", this.boundBeforeInput);
     this.editor.removeEventListener("input", this.boundInput);
     this.editor.removeEventListener("paste", this.boundPaste);

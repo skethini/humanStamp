@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "HumanStamp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Voluntarily sign content you personally typed a majority of in Gmail and Outlook.",
   "permissions": ["storage"],
   "host_permissions": [
@@ -20,8 +20,14 @@
   },
   "content_scripts": [
     {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["dist/content.js"],
+      "css": ["dist/widget.css"],
+      "all_frames": false,
+      "run_at": "document_idle"
+    },
+    {
       "matches": [
-        "https://mail.google.com/*",
         "https://outlook.live.com/*",
         "https://outlook.office.com/*",
         "https://outlook.office365.com/*",

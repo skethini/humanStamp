@@ -1,5 +1,6 @@
 import { queryAllDeep } from "./dom";
 import { hashText } from "./draft-hash";
+import { canUseExtensionStorage } from "../shared/extension-api";
 
 const SESSION_ATTR = "data-humanstamp-draft-id";
 const COMPOSE_BINDINGS_KEY = "draftComposeBindings";
@@ -81,6 +82,7 @@ function composeBindingKey(
 }
 
 async function readComposeBindings(): Promise<Record<string, string>> {
+  if (!canUseExtensionStorage()) return {};
   const result = await chrome.storage.local.get(COMPOSE_BINDINGS_KEY);
   const bindings = result[COMPOSE_BINDINGS_KEY];
   return bindings && typeof bindings === "object"
@@ -92,6 +94,8 @@ async function persistComposeBinding(
   bindingKey: string,
   composeId: string
 ): Promise<void> {
+  if (!canUseExtensionStorage()) return;
+
   const bindings = await readComposeBindings();
   bindings[bindingKey] = composeId;
 

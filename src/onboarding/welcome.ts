@@ -1,4 +1,5 @@
-import { DEFAULT_DISPLAY_NAME, SIGNATURE_PREFIX } from "../shared/constants";
+import { SIGNATURE_PREFIX } from "../shared/constants";
+import { SET_DISPLAY_NAME_MESSAGE } from "../shared/messages";
 import { hasDisplayName } from "../shared/settings";
 
 const form = document.getElementById("form") as HTMLFormElement;
@@ -23,22 +24,18 @@ input.addEventListener("input", () => {
   updatePreview(input.value);
 });
 
-window.addEventListener("pagehide", () => {
-  const name = input.value.trim();
-  chrome.storage.sync.set({
-    displayName: hasDisplayName(name) ? name : DEFAULT_DISPLAY_NAME,
-  });
-});
-
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   const displayName = input.value.trim();
   if (!displayName) return;
 
   continueBtn.disabled = true;
-  chrome.storage.sync.set({ displayName }, () => {
-    window.close();
-  });
+  void chrome.runtime
+    .sendMessage({ type: SET_DISPLAY_NAME_MESSAGE, displayName })
+    .then(() => window.close())
+    .catch(() => {
+      continueBtn.disabled = false;
+    });
 });
 
 updatePreview("");

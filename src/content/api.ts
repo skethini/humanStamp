@@ -1,8 +1,26 @@
 import {
+  GET_DISPLAY_NAME_MESSAGE,
+  GetDisplayNameResponse,
   SIGN_STAMP_MESSAGE,
   SignStampResponse,
 } from "../shared/messages";
 import { SignedStamp } from "../shared/stamp";
+import { canUseExtensionApis } from "../shared/extension-api";
+
+export async function fetchDisplayName(): Promise<string | null> {
+  if (!canUseExtensionApis()) return null;
+
+  try {
+    const response = (await chrome.runtime.sendMessage({
+      type: GET_DISPLAY_NAME_MESSAGE,
+    })) as GetDisplayNameResponse | undefined;
+
+    if (!response?.ok) return null;
+    return response.displayName;
+  } catch {
+    return null;
+  }
+}
 
 export async function requestSignedStamp(
   contentHash: string

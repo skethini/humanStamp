@@ -1,6 +1,7 @@
 import { CharacterOrigin } from "../shared/types";
 import type { DraftIdentity } from "./draft-identity";
 import { hashText } from "./draft-hash";
+import { canUseExtensionStorage } from "../shared/extension-api";
 
 const STORAGE_KEY = "draftProvenance";
 const MAX_ENTRIES = 64;
@@ -62,12 +63,14 @@ let pendingSave: {
 } | null = null;
 
 async function readStore(): Promise<ProvenanceStore> {
+  if (!canUseExtensionStorage()) return {};
   const result = await chrome.storage.local.get(STORAGE_KEY);
   const store = result[STORAGE_KEY];
   return store && typeof store === "object" ? (store as ProvenanceStore) : {};
 }
 
 async function writeStore(store: ProvenanceStore): Promise<void> {
+  if (!canUseExtensionStorage()) return;
   await chrome.storage.local.set({ [STORAGE_KEY]: store });
 }
 
