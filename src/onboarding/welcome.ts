@@ -1,6 +1,6 @@
-import { SIGNATURE_PREFIX } from "../shared/constants";
+import { SIGNATURE_LABEL } from "../shared/constants";
 import { SET_DISPLAY_NAME_MESSAGE } from "../shared/messages";
-import { hasDisplayName } from "../shared/settings";
+import { formatSignatureLine, hasDisplayName } from "../shared/settings";
 
 const form = document.getElementById("form") as HTMLFormElement;
 const input = document.getElementById("displayName") as HTMLInputElement;
@@ -11,13 +11,13 @@ function updatePreview(name: string): void {
   continueBtn.disabled = !hasDisplayName(name);
 
   if (!hasDisplayName(name)) {
-    previewEl.textContent = "Enter your name to see a preview.";
+    previewEl.textContent = SIGNATURE_LABEL;
     previewEl.classList.add("preview-empty");
     return;
   }
 
   previewEl.classList.remove("preview-empty");
-  previewEl.textContent = `${SIGNATURE_PREFIX}${name.trim()}`;
+  previewEl.textContent = formatSignatureLine(name);
 }
 
 input.addEventListener("input", () => {

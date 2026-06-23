@@ -2,9 +2,11 @@ import { verifySignedStamp } from "../shared/crypto";
 import {
   HUMANSTAMP_COMMENT_PREFIX,
   HUMANSTAMP_PAYLOAD_ATTR,
+  SIGNATURE_LABEL,
   SIGNATURE_PREFIX,
 } from "../shared/constants";
 import { extractBodyBeforeSignature } from "../shared/normalize";
+import { hasSignatureText } from "../shared/settings";
 import { SignedStamp } from "../shared/stamp";
 import {
   decodeStampFromTransport,
@@ -59,7 +61,7 @@ function findSignatureAnchors(): HTMLElement[] {
   );
   while (walker.nextNode()) {
     const text = walker.currentNode as Text;
-    if (!text.textContent?.includes(SIGNATURE_PREFIX)) continue;
+    if (!text.textContent || !hasSignatureText(text.textContent)) continue;
     add(resolveHoverTarget(text));
   }
 
@@ -68,13 +70,13 @@ function findSignatureAnchors(): HTMLElement[] {
 
 function resolveHoverTarget(node: Text | HTMLElement): HTMLElement {
   if (node instanceof HTMLElement) {
-    if (node.textContent?.includes(SIGNATURE_PREFIX)) return node;
+    if (node.textContent && hasSignatureText(node.textContent)) return node;
     return node;
   }
 
   let el: HTMLElement | null = node.parentElement;
   while (el) {
-    if (el.textContent?.includes(SIGNATURE_PREFIX)) {
+    if (el.textContent && hasSignatureText(el.textContent)) {
       if (["SPAN", "P", "DIV", "TD", "A"].includes(el.tagName)) return el;
     }
     if (el.getAttribute("role") === "textbox") break;

@@ -1,5 +1,5 @@
-import { DEFAULT_SETTINGS, SIGNATURE_PREFIX } from "../shared/constants";
-import { getEffectiveDisplayName, hasDisplayName } from "../shared/settings";
+import { DEFAULT_SETTINGS, SIGNATURE_LABEL } from "../shared/constants";
+import { formatSignatureLine, hasDisplayName } from "../shared/settings";
 
 const input = document.getElementById("displayName") as HTMLInputElement;
 const statusEl = document.getElementById("status") as HTMLElement;
@@ -9,7 +9,7 @@ let saveTimer: number | null = null;
 
 function updatePreview(name: string): void {
   previewEl.classList.remove("preview-empty");
-  previewEl.textContent = `${SIGNATURE_PREFIX}${getEffectiveDisplayName(name)}`;
+  previewEl.textContent = formatSignatureLine(name);
 }
 
 chrome.storage.sync.get(DEFAULT_SETTINGS, (settings) => {

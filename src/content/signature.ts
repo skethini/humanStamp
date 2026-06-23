@@ -3,12 +3,18 @@ import {
   HUMANSTAMP_COMMENT_PREFIX,
   HUMANSTAMP_METADATA_ATTR,
   HUMANSTAMP_PAYLOAD_ATTR,
+  SIGNATURE_LABEL,
   SIGNATURE_PREFIX,
 } from "../shared/constants";
 import { verifySignedStamp } from "../shared/crypto";
 import { normalizeBodyForHash } from "../shared/normalize";
 import { resolveEditableRoot } from "./dom";
-import { getEffectiveDisplayName, resolveDisplayName } from "../shared/settings";
+import {
+  formatSignatureLine,
+  findSignatureIndex,
+  hasSignatureText,
+  stripSignatureText,
+} from "../shared/settings";
 import { SignedStamp } from "../shared/stamp";
 
 export interface AppendSignatureOptions {
@@ -19,20 +25,16 @@ export interface RemoveSignatureOptions {
   richEditor?: boolean;
 }
 
-export function buildSignature(displayName: string): string | null {
-  const name = resolveDisplayName(displayName);
-  if (!name) return null;
-  return `\n\n${SIGNATURE_PREFIX}${name}`;
+export function buildSignature(displayName: string): string {
+  return `\n\n${formatSignatureLine(displayName)}`;
 }
 
 export function stripSignature(text: string): string {
-  const idx = text.lastIndexOf(SIGNATURE_PREFIX);
-  if (idx === -1) return text;
-  return text.slice(0, idx).replace(/\s+$/, "");
+  return stripSignatureText(text);
 }
 
 export function hasSignature(text: string): boolean {
-  return text.includes(SIGNATURE_PREFIX);
+  return hasSignatureText(text);
 }
 
 export function getBodyText(fullText: string): string {
@@ -143,11 +145,13 @@ export function signatureIsDamaged(editor: HTMLElement): boolean {
   if (blocks.length > 0) return true;
 
   const text = root.innerText.replace(/\u00a0/g, " ");
-  const idx = text.lastIndexOf(SIGNATURE_PREFIX);
+  const idx = findSignatureIndex(text);
   if (idx === -1) return false;
 
   const signatureLine = text.slice(idx).split("\n")[0]?.trim() ?? "";
-  if (signatureLine.length < SIGNATURE_PREFIX.length) return true;
+  if (signatureLine === SIGNATURE_LABEL) return false;
+
+  if (!signatureLine.startsWith(SIGNATURE_PREFIX)) return true;
 
   const namePart = signatureLine.slice(SIGNATURE_PREFIX.length).trim();
   return namePart.length === 0;
@@ -246,36 +250,35 @@ export function appendSignedSignature(
   stampJson: string,
   options: AppendSignatureOptions = {}
 ): void {
-  const name = getEffectiveDisplayName(displayName);
+  const signatureText = formatSignatureLine(displayName);
   const root = resolveEditableRoot(editor);
   const doc = root.ownerDocument;
   if (!doc) return;
 
   if (options.richEditor) {
-    const html = buildSignatureHtml(name, stampJson);
+    const html = buildSignatureHtml(signatureText, stampJson);
     if (insertSignatureHtml(root, editor, html)) {
       dispatchEditorInput(root);
       return;
     }
 
-    if (insertSignatureNodes(root, editor, name, stampJson)) {
+    if (insertSignatureNodes(root, editor, signatureText, stampJson)) {
       dispatchEditorInput(root);
       return;
     }
   }
 
-  root.appendChild(buildSignatureNodes(doc, name, stampJson));
+  root.appendChild(buildSignatureNodes(doc, signatureText, stampJson));
   dispatchEditorInput(root);
 }
 
-function buildSignatureHtml(name: string, stampJson: string): string {
-  const text = `${SIGNATURE_PREFIX}${name}`;
+function buildSignatureHtml(signatureText: string, stampJson: string): string {
   const payload = escapeAttribute(stampJson);
   const encoded = encodeStampForTransport(stampJson);
   return (
     `<div class="humanstamp-spacer"><br></div>` +
     `<div class="${HUMANSTAMP_BLOCK_CLASS}" ${HUMANSTAMP_METADATA_ATTR}="v2" contenteditable="false" style="border:none;margin:0;padding:0;background:transparent;-webkit-user-select:all;user-select:all;">` +
-    `<span class="humanstamp-signature" ${HUMANSTAMP_PAYLOAD_ATTR}="${payload}">${escapeHtml(text)}</span>` +
+    `<span class="humanstamp-signature" ${HUMANSTAMP_PAYLOAD_ATTR}="${payload}">${escapeHtml(signatureText)}</span>` +
     `<!--${HUMANSTAMP_COMMENT_PREFIX}${encoded}-->` +
     `</div>`
   );
@@ -283,11 +286,10 @@ function buildSignatureHtml(name: string, stampJson: string): string {
 
 function buildSignatureNodes(
   doc: Document,
-  name: string,
+  signatureText: string,
   stampJson: string
 ): DocumentFragment {
   const fragment = doc.createDocumentFragment();
-  const text = `${SIGNATURE_PREFIX}${name}`;
 
   const block = doc.createElement("div");
   block.className = HUMANSTAMP_BLOCK_CLASS;
@@ -298,7 +300,7 @@ function buildSignatureNodes(
 
   const visible = doc.createElement("span");
   visible.className = "humanstamp-signature";
-  visible.textContent = text;
+  visible.textContent = signatureText;
   visible.setAttribute(HUMANSTAMP_PAYLOAD_ATTR, stampJson);
   block.appendChild(visible);
 
@@ -326,13 +328,13 @@ function buildSignatureNodes(
 function insertSignatureNodes(
   root: HTMLElement,
   container: HTMLElement,
-  name: string,
+  signatureText: string,
   stampJson: string
 ): boolean {
   const doc = root.ownerDocument;
   if (!doc) return false;
 
-  const fragment = buildSignatureNodes(doc, name, stampJson);
+  const fragment = buildSignatureNodes(doc, signatureText, stampJson);
   root.focus();
 
   const selection = doc.getSelection();
@@ -413,9 +415,9 @@ export function removeSignatureFromEditor(
 
   if (!options.richEditor && editorHasSignature(editor)) {
     const text = root.innerText.replace(/\u00a0/g, " ");
-    const idx = text.lastIndexOf(SIGNATURE_PREFIX);
-    if (idx !== -1) {
-      root.innerText = text.slice(0, idx).replace(/\s+$/, "");
+    const stripped = stripSignatureText(text);
+    if (stripped !== text) {
+      root.innerText = stripped;
     }
   }
 
@@ -478,7 +480,7 @@ function bubbleCleanupEmptyContainers(start: HTMLElement, root: HTMLElement): vo
     }
 
     const text = current.textContent?.replace(/\u00a0/g, " ").trim() ?? "";
-    if (text.length > 0 && !text.startsWith(SIGNATURE_PREFIX)) break;
+    if (text.length > 0 && !text.startsWith(SIGNATURE_PREFIX) && text !== SIGNATURE_LABEL) break;
 
     const children = [...current.childNodes];
     const onlyEmptyChildren =
@@ -540,7 +542,7 @@ function isEmptyFormattingBlock(el: HTMLElement): boolean {
   if (el.tagName === "DIV" || el.tagName === "P") {
     const text = el.textContent?.replace(/\u00a0/g, " ").trim() ?? "";
     if (text.length === 0) return true;
-    if (text === SIGNATURE_PREFIX.trim()) return true;
+    if (text === SIGNATURE_PREFIX.trim() || text === SIGNATURE_LABEL) return true;
   }
   return false;
 }
@@ -562,7 +564,7 @@ function removePlainTextSignature(root: HTMLElement): void {
   while (walker.nextNode()) {
     const node = walker.currentNode as Text;
     const content = node.textContent ?? "";
-    const idx = content.lastIndexOf(SIGNATURE_PREFIX);
+    const idx = findSignatureIndex(content);
     if (idx === -1) continue;
 
     node.textContent = content.slice(0, idx).replace(/\s+$/, "");
@@ -592,7 +594,5 @@ export function getBodyTextFromEditor(editor: HTMLElement): string {
   removeStampComments(clone);
 
   const text = clone.innerText.replace(/\u00a0/g, " ");
-  const idx = text.lastIndexOf(SIGNATURE_PREFIX);
-  if (idx === -1) return normalizeBodyForHash(text);
-  return normalizeBodyForHash(text.slice(0, idx).replace(/\s+$/, ""));
+  return normalizeBodyForHash(stripSignatureText(text));
 }

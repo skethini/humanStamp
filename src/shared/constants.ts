@@ -1,11 +1,10 @@
-export const DEFAULT_DISPLAY_NAME = "humanstamped";
-
 export const DEFAULT_SETTINGS = {
   displayName: "",
 };
 
 export const ELIGIBILITY_THRESHOLD = 0.5;
-export const SIGNATURE_PREFIX = "✍ HumanStamped by ";
+export const SIGNATURE_LABEL = "✍ HumanStamped";
+export const SIGNATURE_PREFIX = `${SIGNATURE_LABEL} by `;
 export const HUMANSTAMP_METADATA_ATTR = "data-humanstamp";
 export const HUMANSTAMP_PAYLOAD_ATTR = "data-humanstamp-payload";
 export const HUMANSTAMP_BLOCK_CLASS = "humanstamp-block";

@@ -1,4 +1,4 @@
-import { SIGNATURE_PREFIX } from "./constants";
+import { findSignatureIndex } from "./settings";
 
 /** Stable text normalization for hashing and verification across email clients. */
 export function normalizeBodyForHash(text: string): string {
@@ -12,7 +12,7 @@ export function normalizeBodyForHash(text: string): string {
 
 export function extractBodyBeforeSignature(container: HTMLElement): string {
   const text = container.innerText.replace(/\u00a0/g, " ");
-  const idx = text.lastIndexOf(SIGNATURE_PREFIX);
+  const idx = findSignatureIndex(text);
   if (idx === -1) return normalizeBodyForHash(text);
   return normalizeBodyForHash(text.slice(0, idx).replace(/\s+$/, ""));
 }

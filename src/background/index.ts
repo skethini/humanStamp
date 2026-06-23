@@ -1,4 +1,4 @@
-import { DEFAULT_DISPLAY_NAME, DEFAULT_SETTINGS } from "../shared/constants";
+import { DEFAULT_SETTINGS } from "../shared/constants";
 import {
   GET_DISPLAY_NAME_MESSAGE,
   GetDisplayNameResponse,
@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       .then((settings) =>
         sendResponse({
           ok: true,
-          displayName: settings.displayName || DEFAULT_DISPLAY_NAME,
+          displayName: settings.displayName || "",
         } satisfies GetDisplayNameResponse)
       )
       .catch((error: unknown) =>
@@ -83,6 +83,5 @@ async function openWelcomeIfNeeded(): Promise<void> {
   const settings = await chrome.storage.sync.get(DEFAULT_SETTINGS);
   if (hasDisplayName(settings.displayName)) return;
 
-  await chrome.storage.sync.set({ displayName: DEFAULT_DISPLAY_NAME });
   await chrome.tabs.create({ url: WELCOME_URL });
 }
