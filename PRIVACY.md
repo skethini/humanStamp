@@ -65,7 +65,6 @@ HumanStamp does **not**:
 | Permission | Why it is used |
 |------------|----------------|
 | `storage` | Save your display name and local draft provenance |
-| `tabs` | Open the first-run welcome page when the extension is installed |
 | Host access to Gmail / Outlook | Show the widget and track compose editors only |
 | Host access to `human-stamp.vercel.app` | Request signatures from the signing service |
 

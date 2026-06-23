@@ -49,7 +49,6 @@ Help users voluntarily sign email drafts they mostly typed themselves in Gmail a
 | Permission | Justification |
 |------------|---------------|
 | `storage` | Stores your chosen display name and local draft typing state so eligibility persists across sessions. |
-| `tabs` | Opens a one-time welcome page on install to set your signature name. |
 | Gmail / Outlook host permissions | Required to detect compose editors and show the HumanStamp widget only while you write email. |
 | `human-stamp.vercel.app` | Hosts the signing API used when you click Add Signature. Only a content hash is transmitted—not your full email. |
 

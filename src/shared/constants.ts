@@ -4,8 +4,6 @@ export const DEFAULT_SETTINGS = {
   displayName: "",
 };
 
-export const ONBOARDING_TAB_ID_KEY = "onboardingTabId";
-
 export const ELIGIBILITY_THRESHOLD = 0.5;
 export const SIGNATURE_PREFIX = "✍ HumanStamped by ";
 export const HUMANSTAMP_METADATA_ATTR = "data-humanstamp";

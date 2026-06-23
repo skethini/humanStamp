@@ -1,4 +1,4 @@
-import { SIGNATURE_PREFIX } from "../shared/constants";
+import { DEFAULT_DISPLAY_NAME, SIGNATURE_PREFIX } from "../shared/constants";
 import { hasDisplayName } from "../shared/settings";
 
 const form = document.getElementById("form") as HTMLFormElement;
@@ -25,9 +25,9 @@ input.addEventListener("input", () => {
 
 window.addEventListener("pagehide", () => {
   const name = input.value.trim();
-  if (name) {
-    chrome.storage.sync.set({ displayName: name });
-  }
+  chrome.storage.sync.set({
+    displayName: hasDisplayName(name) ? name : DEFAULT_DISPLAY_NAME,
+  });
 });
 
 form.addEventListener("submit", (event) => {
