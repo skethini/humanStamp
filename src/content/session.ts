@@ -15,7 +15,7 @@ import { resolveEditableRoot } from "./dom";
 import {
   appendSignedSignature,
   editorHasSignature,
-  getBodyText,
+  extractStampFromEditor,
   getBodyTextFromEditor,
   isHistoryInput,
   removeSignatureFromEditor,
@@ -152,10 +152,7 @@ export class EditorSession {
   }
 
   private getEditorBodyText(): string {
-    if (this.adapter.id === "outlook") {
-      return getBodyTextFromEditor(this.editor);
-    }
-    return getBodyText(this.adapter.getText(this.editor));
+    return getBodyTextFromEditor(this.editor);
   }
 
   private inferSeedOrigin(): CharacterOrigin {
@@ -433,15 +430,16 @@ export class EditorSession {
     try {
       const contentHash = await hashContent(bodyText);
       const stamp = await requestSignedStamp(contentHash);
-      appendSignedSignature(
-        this.editor,
-        this.displayName,
-        JSON.stringify(stamp),
-        { richEditor: this.adapter.id === "outlook" }
-      );
+      appendSignedSignature(this.editor, this.displayName, JSON.stringify(stamp));
 
-      if (!editorHasSignature(this.editor)) {
+      if (!editorHasSignature(this.editor) || !extractStampFromEditor(this.editor)) {
         throw new Error("Could not insert signature into editor");
+      }
+
+      const verified = await verifyEditorSignature(this.editor, bodyText);
+      if (!verified) {
+        this.removeSignature();
+        throw new Error("Signature could not be verified after insertion");
       }
 
       this.signaturePresent = true;
@@ -470,9 +468,7 @@ export class EditorSession {
 
   private removeSignature(): void {
     if (!editorHasSignature(this.editor)) return;
-    removeSignatureFromEditor(this.editor, {
-      richEditor: this.adapter.id === "outlook",
-    });
+    removeSignatureFromEditor(this.editor, { richEditor: true });
   }
 
   destroy(): void {

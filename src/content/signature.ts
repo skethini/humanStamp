@@ -255,7 +255,9 @@ export function appendSignedSignature(
   const doc = root.ownerDocument;
   if (!doc) return;
 
-  if (options.richEditor) {
+  const richEditor = options.richEditor !== false;
+
+  if (richEditor) {
     const html = buildSignatureHtml(signatureText, stampJson);
     if (insertSignatureHtml(root, editor, html)) {
       dispatchEditorInput(root);
@@ -325,6 +327,10 @@ function buildSignatureNodes(
   return fragment;
 }
 
+function signatureInserted(container: HTMLElement): boolean {
+  return editorHasSignature(container) && extractStampFromEditor(container) !== null;
+}
+
 function insertSignatureNodes(
   root: HTMLElement,
   container: HTMLElement,
@@ -345,11 +351,11 @@ function insertSignatureNodes(
     selection.removeAllRanges();
     selection.addRange(range);
     range.insertNode(fragment);
-    return editorHasSignature(container);
+    return signatureInserted(container);
   }
 
   root.appendChild(fragment);
-  return editorHasSignature(container);
+  return signatureInserted(container);
 }
 
 function insertSignatureHtml(
@@ -368,13 +374,13 @@ function insertSignatureHtml(
     selection.addRange(range);
 
     if (root.ownerDocument.execCommand("insertHTML", false, html)) {
-      return editorHasSignature(container);
+      return signatureInserted(container);
     }
   }
 
   try {
     root.insertAdjacentHTML("beforeend", html);
-    if (editorHasSignature(container)) return true;
+    if (signatureInserted(container)) return true;
   } catch {
     // fall through
   }
