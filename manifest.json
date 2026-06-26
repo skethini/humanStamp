@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "HumanStamp",
   "version": "0.2.1",
-  "description": "Voluntarily sign content you personally typed a majority of in Gmail and Outlook.",
+  "description": "Sign emails that you engaged with to stand out in Gmail and Outlook.",
   "permissions": ["storage"],
   "host_permissions": [
     "https://human-stamp.vercel.app/*",
