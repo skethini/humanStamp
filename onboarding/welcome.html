@@ -21,7 +21,7 @@
       }
       .card {
         width: 100%;
-        max-width: 420px;
+        max-width: 520px;
         padding: 32px;
         border-radius: 12px;
         background: #fff;
@@ -32,10 +32,39 @@
         font-size: 24px;
       }
       p {
-        margin: 0 0 24px;
+        margin: 0 0 16px;
         font-size: 14px;
         color: #666;
         line-height: 1.5;
+      }
+      .video-wrap {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%;
+        margin: 0 0 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #000;
+      }
+      .video-wrap iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+      .notice {
+        margin: 0 0 24px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: #f0f7f2;
+        border: 1px solid #c8e6d0;
+        font-size: 13px;
+        color: #2d5a3d;
+        line-height: 1.5;
+      }
+      .notice strong {
+        color: #1a7f37;
       }
       label {
         display: block;
@@ -118,6 +147,19 @@
       <p>
         HumanStamp lets you sign content you personally typed. You can optionally add
         your name to signatures, or leave it blank to use <strong>✍ HumanStamped</strong>.
+      </p>
+      <div class="video-wrap">
+        <iframe
+          src="https://human-stamp.vercel.app/demo.html"
+          title="HumanStamp demo"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <p class="notice">
+        <strong>Before you start:</strong> close and reopen any open Gmail or Outlook tabs
+        (or refresh them) so HumanStamp can load in your compose window.
       </p>
       <form id="form">
         <label for="displayName">Your name (optional)</label>

@@ -18,6 +18,8 @@ npm run generate-keys
 
 The public key is written to `src/shared/public-key.ts` for the extension. Never commit `server/keys/private.jwk`.
 
+Static pages in `server/public/` are served at the site root (e.g. `privacy.html`, `demo.html`). The extension welcome page embeds `demo.html` so YouTube receives a normal HTTPS referrer.
+
 ## API
 
 `POST /api/v1/sign`

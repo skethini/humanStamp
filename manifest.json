@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "HumanStamp",
-  "version": "0.2.1",
+  "version": "0.2.4",
   "description": "Sign emails that you engaged with to stand out in Gmail and Outlook.",
   "permissions": ["storage"],
   "host_permissions": [
@@ -54,5 +54,8 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-src https://human-stamp.vercel.app;"
   }
 }

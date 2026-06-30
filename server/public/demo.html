@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>HumanStamp demo</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        overflow: hidden;
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe
+      id="player"
+      title="HumanStamp demo"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    ></iframe>
+    <script>
+      const DEFAULT_VIDEO_ID = "YHpqbnChq9I";
+      const params = new URLSearchParams(window.location.search);
+      const videoId = params.get("v") || DEFAULT_VIDEO_ID;
+      const player = document.getElementById("player");
+      player.src =
+        "https://www.youtube.com/embed/" +
+        encodeURIComponent(videoId) +
+        "?rel=0&modestbranding=1";
+    </script>
+  </body>
+</html>
