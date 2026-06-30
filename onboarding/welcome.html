@@ -66,6 +66,32 @@
       .notice strong {
         color: #1a7f37;
       }
+      .eligibility {
+        margin: 0 0 20px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: #f8f8f8;
+        border: 1px solid #e8e8e8;
+        font-size: 13px;
+        color: #444;
+        line-height: 1.55;
+      }
+      .eligibility strong {
+        color: #222;
+      }
+      .privacy {
+        margin: 0 0 20px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: #f4f7fb;
+        border: 1px solid #d8e4f0;
+        font-size: 13px;
+        color: #3a4a5c;
+        line-height: 1.55;
+      }
+      .privacy strong {
+        color: #1e3a5f;
+      }
       label {
         display: block;
         font-size: 13px;
@@ -147,6 +173,18 @@
       <p>
         HumanStamp lets you sign content you personally typed. You can optionally add
         your name to signatures, or leave it blank to use <strong>✍ HumanStamped</strong>.
+      </p>
+      <p class="eligibility">
+        <strong>How eligibility works:</strong> your draft becomes eligible for a HumanStamp
+        once at least <strong>50% of the email body</strong> has been typed by you (not pasted).
+        That’s the signal that you’ve actually engaged with what you’re sending—not just dropped
+        in text and hit send.
+      </p>
+      <p class="privacy">
+        <strong>Private by design:</strong> your email content never leaves your device.
+        HumanStamp reads your draft locally to track typing and eligibility. Only if you
+        choose to sign do we send a one-way hash of the message body to our signing
+        service—not the email text, subject, or recipients.
       </p>
       <div class="video-wrap">
         <iframe
